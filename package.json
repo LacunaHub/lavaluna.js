@@ -1,0 +1,47 @@
+{
+  "name": "lavaluna.js",
+  "version": "1.0.0",
+  "description": "Lavalink client for Node.js.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "docs": "typedoc src/index.ts --plugin typedoc-material-theme --out docs"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "dts": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LacunaHub/lavaluna.js.git"
+  },
+  "keywords": [
+    "lavalink",
+    "discord.js",
+    "eris"
+  ],
+  "author": "Lacuna (https://github.com/LacunaHub)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LacunaHub/lavaluna.js/issues"
+  },
+  "homepage": "https://github.com/LacunaHub/lavaluna.js#readme",
+  "devDependencies": {
+    "@types/node": "20.11.x",
+    "@types/ws": "8.5.x",
+    "tsup": "8.0.x",
+    "typedoc": "0.25.x",
+    "typedoc-material-theme": "1.0.x"
+  },
+  "dependencies": {
+    "tslib": "2.6.x",
+    "undici": "6.6.x",
+    "ws": "8.16.x"
+  }
+}
