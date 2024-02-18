@@ -268,7 +268,7 @@ export class Node {
 
         if (!player) return
 
-        const track = player.queue.current
+        const track = player.queue.at(player.queue.position)
 
         if (event.type === 'TrackStartEvent') {
             player.playing = true
@@ -276,20 +276,6 @@ export class Node {
 
             this.manager.emit('playerTrackStart', player, track)
         } else if (event.type === 'TrackEndEvent') {
-            // If a track had an error while starting
-            if (['loadFailed', 'cleanup'].includes(event.reason)) {
-                player.queue.previous = player.queue.current
-                player.queue.current = player.queue.shift()
-
-                if (!player.queue.current) return player.queue.end(player, track)
-
-                this.manager.emit('playerTrackEnd', player, track)
-
-                if (this.manager.options.autoPlay) player.play()
-
-                return
-            }
-
             // If a track was forcibly played
             if (event.reason === 'replaced') {
                 this.manager.emit('playerTrackEnd', player, track)
@@ -297,54 +283,24 @@ export class Node {
                 return
             }
 
-            // If a track ended and is track repeating
-            if (track && player.trackRepeat) {
+            if (player.repeatMode === 'TRACK') {
                 if (event.reason === 'stopped') {
-                    player.queue.previous = player.queue.current
-                    player.queue.current = player.queue.shift()
+                    player.queue.position++
                 }
+            } else if (player.repeatMode === 'QUEUE') {
+                player.queue.position++
 
-                if (!player.queue.current) return player.queue.end(player, track)
-
-                this.manager.emit('playerTrackEnd', player, track)
-
-                if (this.manager.options.autoPlay) player.play()
-
-                return
-            }
-
-            // If a track ended and is queue repeating
-            if (track && player.queueRepeat) {
-                player.queue.previous = player.queue.current
-
-                if (event.reason === 'stopped') {
-                    player.queue.current = player.queue.shift()
-                    if (!player.queue.current) return player.queue.end(player, track)
-                } else {
-                    player.queue.add(player.queue.current)
-                    player.queue.current = player.queue.shift()
+                if (!player.queue.current) {
+                    player.queue.position = 0
                 }
-
-                this.manager.emit('playerTrackEnd', player, track)
-
-                if (this.manager.options.autoPlay) player.play()
-
-                return
+            } else {
+                player.queue.position++
             }
 
-            // If there is another song in the queue
-            if (player.queue.length) {
-                player.queue.previous = player.queue.current
-                player.queue.current = player.queue.shift()
+            if (!player.queue.current) return player.queue.end(player, track)
 
-                this.manager.emit('playerTrackEnd', player, track)
-                if (this.manager.options.autoPlay) player.play()
-
-                return
-            }
-
-            // If there are no songs in the queue
-            if (!player.queue.length) return player.queue.end(player, track)
+            this.manager.emit('playerTrackEnd', player, track)
+            this.manager.options.autoPlay && player.play()
         } else if (event.type === 'TrackExceptionEvent') {
             player.stop()
             this.manager.emit('playerTrackError', player, track, event.exception)

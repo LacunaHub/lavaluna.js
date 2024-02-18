@@ -35,14 +35,9 @@ export class Player {
     public readonly queue = new Queue()
 
     /**
-     * Whether the player repeats the current track.
+     * The repeat mode of the player.
      */
-    public trackRepeat = false
-
-    /**
-     * Whether the queue repeats the queue.
-     */
-    public queueRepeat = false
+    public repeatMode: PlayerRepeatMode = 'OFF'
 
     /**
      * A mode of music playback in which songs are played in a randomized order.
@@ -68,6 +63,20 @@ export class Player {
      * The volume for the player.
      */
     public volume: number
+
+    /**
+     * Whether the player repeats the current track.
+     */
+    public get trackRepeat(): boolean {
+        return this.repeatMode === 'TRACK'
+    }
+
+    /**
+     * Whether the queue repeats the queue.
+     */
+    public get queueRepeat(): boolean {
+        return this.repeatMode === 'QUEUE'
+    }
 
     private readonly data: Record<string, any> = {}
 
@@ -166,20 +175,19 @@ export class Player {
     public async play(options?: PlayOptions): Promise<APIPlayer>
 
     public async play(options?: PlayOptions): Promise<APIPlayer> {
+        let track = this.queue.current
+
         if (typeof options?.track !== 'undefined' && isValidTrack(options.track)) {
-            this.queue.current && (this.queue.previous = this.queue.current)
-            this.queue.current = options.track
+            track = options.track
         }
 
-        if (!this.queue.current) throw new RangeError('[Player#play] No current track.')
-
-        let track = this.queue.current.encoded
+        if (!track) throw new RangeError('[Player#play] No current track.')
 
         return await this.node.rest.updatePlayer(
             this.guildId,
             {
                 track: {
-                    encoded: track,
+                    encoded: track.encoded,
                     userData: options?.userData
                 },
                 position: options?.position,
@@ -243,13 +251,13 @@ export class Player {
      *
      * @param repeat - The new track repeat.
      * @returns The updated instance of the player.
+     * @deprecated Use {@link Player.setRepeatMode} instead.
      */
     public setTrackRepeat(repeat: boolean): this {
         if (typeof repeat !== 'boolean')
             throw new TypeError('[Player#setTrackRepeat] Repeat can only be "true" or "false".')
 
-        this.trackRepeat = repeat
-        this.queueRepeat = false
+        this.repeatMode = repeat ? 'TRACK' : 'OFF'
 
         return this
     }
@@ -259,13 +267,22 @@ export class Player {
      *
      * @param repeat - The new queue repeat.
      * @returns The updated instance of the player.
+     * @deprecated Use {@link Player.setRepeatMode} instead.
      */
     public setQueueRepeat(repeat: boolean): this {
         if (typeof repeat !== 'boolean')
             throw new TypeError('[Player#setQueueRepeat] Repeat can only be "true" or "false".')
 
-        this.queueRepeat = repeat
-        this.trackRepeat = false
+        this.repeatMode = repeat ? 'QUEUE' : 'OFF'
+
+        return this
+    }
+
+    public setRepeatMode(mode: PlayerRepeatMode): this {
+        if (!['OFF', 'TRACK', 'QUEUE'].includes(mode))
+            throw new TypeError('[Player#setRepeatMode] Mode can only be "TRACK" or "QUEUE".')
+
+        this.repeatMode = mode
 
         return this
     }
@@ -299,10 +316,10 @@ export class Player {
      */
     public async stop(amount?: number): Promise<this> {
         if (typeof amount === 'number' && amount > 1) {
+            amount += this.position
+
             if (amount > this.queue.length)
                 throw new RangeError('[Player#stop] Cannot skip more than the queue length.')
-
-            this.queue.splice(0, amount - 1)
         }
 
         await this.node.rest.updatePlayer(this.guildId, { encodedTrack: null })
@@ -420,6 +437,8 @@ export interface PlayerOptions {
 }
 
 export type PlayerState = 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' | 'DISCONNECTING'
+
+export type PlayerRepeatMode = 'OFF' | 'TRACK' | 'QUEUE'
 
 export interface PlayOptions {
     /**

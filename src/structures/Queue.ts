@@ -3,14 +3,23 @@ import { Player } from './Player'
 
 export class Queue extends Array<QueuedTrack> {
     /**
+     * The current position in the queue.
+     */
+    public position = 0
+
+    /**
      * The current track.
      */
-    public current: QueuedTrack | null = null
+    public get current(): QueuedTrack | undefined {
+        return this.at(this.position)
+    }
 
     /**
      * The previous track.
      */
-    public previous: QueuedTrack | null = null
+    public get previous(): QueuedTrack | undefined {
+        return this.at(this.position - 1)
+    }
 
     /**
      * Get the duration of the function in milliseconds.
@@ -29,16 +38,6 @@ export class Queue extends Array<QueuedTrack> {
      * @returns The Queue instance after adding the track(s).
      */
     public add(track: QueuedTrack | QueuedTrack[], offset?: number): this {
-        if (!this.current) {
-            if (Array.isArray(track)) {
-                this.current = (track = [...track]).shift()
-            } else {
-                this.current = track
-
-                return this
-            }
-        }
-
         if (typeof offset !== 'undefined' && typeof offset === 'number') {
             if (isNaN(offset)) {
                 throw new RangeError('[Queue#add] Offset must be a number.')
@@ -137,7 +136,8 @@ export class Queue extends Array<QueuedTrack> {
      * @param track - The track object.
      */
     public end(player: Player, track: QueuedTrack): void {
-        player.queue.current = null
+        this.clear()
+        this.position = 0
         player.playing = false
 
         player.node.manager.emit('playerQueueEnd', player, track)
