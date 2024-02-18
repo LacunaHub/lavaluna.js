@@ -13,7 +13,7 @@ export class NodeManager extends DataManager<string, Node> {
      * @returns An array of nodes with the least load.
      */
     public get leastLoad(): Node[] {
-        const nodes = [...this.cache.values()].map(node => node)
+        const nodes = [...this.cache.values()]
 
         return nodes
             .filter(node => node.connected)
