@@ -108,7 +108,7 @@ client.on('interactionCreate', async interaction => {
                 return
             }
 
-            const player = self.player.create({
+            const player = client.lava.nodes.createPlayer({
                 guildId: interaction.guildId,
                 voiceChannelId: voice.id,
                 textChannelId: interaction.channelId
