@@ -82,7 +82,7 @@ export class LavalunaManager extends EventEmitter {
      * Shortcut for {@link NodeManager.search}.
      */
     public async search(query: SearchQuery, options?: SearchOptions): Promise<SearchResult> {
-        return this.nodes.search(query)
+        return this.nodes.search(query, options)
     }
 
     /**
