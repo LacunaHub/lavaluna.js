@@ -300,7 +300,7 @@ export class Node {
             if (!player.queue.current) return player.queue.end(player, track)
 
             this.manager.emit('playerTrackEnd', player, track)
-            this.manager.options.autoPlay && player.play()
+            player.play()
         } else if (event.type === 'TrackExceptionEvent') {
             player.stop()
             this.manager.emit('playerTrackError', player, track, event.exception)

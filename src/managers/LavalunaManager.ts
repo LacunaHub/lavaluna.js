@@ -45,7 +45,6 @@ export class LavalunaManager extends EventEmitter {
 
         this.nodes = new NodeManager(this)
         this.options.clientName = this.options.clientName ?? 'lavaluna.js'
-        this.options.autoPlay = this.options.autoPlay ?? true
 
         for (const nodeOptions of this.options.nodes) {
             this.nodes.create(nodeOptions)
@@ -176,11 +175,6 @@ export interface LavalunaManagerOptions {
      * Value to use for the `Client-Name` header.
      */
     clientName?: string
-
-    /**
-     * Whether players should automatically play the next song.
-     */
-    autoPlay?: boolean
 
     /** The default search platform to use, can be "ytsearch", "ytmsearch", "scsearch", or your custom. */
     defaultSearchPlatform?: SearchPlatform
