@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsup",
     "docs": "typedoc src/index.ts --plugin typedoc-material-theme --out docs",
-    "format": "npx prettier . --write"
+    "format": "npx prettier . --write",
+    "prepare": "npm run build"
   },
   "tsup": {
     "entry": [
