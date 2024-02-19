@@ -112,21 +112,29 @@ export class Queue extends Array<QueuedTrack> {
      * Shuffles the tracks in the queue.
      */
     public shuffle(): void {
+        const currentTrackId = this.current.encoded
+
         for (let i = this.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
             ;[this[i], this[j]] = [this[j], this[i]]
         }
+
+        this.position = this.findIndex(track => track.encoded === currentTrackId)
     }
 
     /**
      * Unshuffle the queue based on queuedAt and identifier/title.
      */
     public unshuffle(): void {
+        const currentTrackId = this.current.encoded
+
         this.sort((a, b) => {
             if (a.queuedAt === b.queuedAt)
                 return (a.info.identifier || a.info.title).localeCompare(b.info.identifier || b.info.title)
             return a.queuedAt - b.queuedAt
         })
+
+        this.position = this.findIndex(track => track.encoded === currentTrackId)
     }
 
     /**
