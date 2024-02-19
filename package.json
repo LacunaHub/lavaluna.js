@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "docs": "typedoc src/index.ts --plugin typedoc-material-theme --out docs"
+    "docs": "typedoc src/index.ts --plugin typedoc-material-theme --out docs",
+    "format": "npx prettier . --write"
   },
   "tsup": {
     "entry": [
