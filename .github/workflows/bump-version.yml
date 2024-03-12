@@ -28,15 +28,16 @@ jobs:
                   fi
 
                   echo semver=$semver >> $GITHUB_OUTPUT
-            - name: Set Git config
+            - name: Setup Git
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git remote set-url --push origin https://daniquoll:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
             - name: Bump version
               run: |
                   git checkout -b $GITHUB_HEAD_REF
                   npm version ${{ steps.semver.outputs.semver }} -m "chore: bump version to %s"
             - name: Push
               run: |
-                  git remote set-url --push origin https://daniquoll:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-                  git push -u origin $GITHUB_HEAD_REF --follow-tags
+                  git pull --rebase origin $GITHUB_HEAD_REF
+                  git push origin $GITHUB_HEAD_REF --follow-tags
