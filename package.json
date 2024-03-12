@@ -1,6 +1,6 @@
 {
   "name": "@lacunahub/lavaluna.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lavalink client for Node.js.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
