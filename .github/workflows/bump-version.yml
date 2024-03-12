@@ -41,4 +41,4 @@ jobs:
             - name: Push
               run: |
                   git remote set-url --push origin https://daniquoll:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-                  git push origin ${{ github.ref_name }} --follow-tags
+                  git push origin $GITHUB_HEAD_REF --follow-tags
