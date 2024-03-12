@@ -6,9 +6,6 @@ on:
         types: [labeled]
     workflow_dispatch:
 
-permissions:
-    contents: write
-
 jobs:
     commit:
         runs-on: ubuntu-latest
