@@ -1,5 +1,5 @@
 {
-  "name": "lavaluna.js",
+  "name": "@lacunahub/lavaluna.js",
   "version": "1.0.1",
   "description": "Lavalink client for Node.js.",
   "main": "dist/index.js",
@@ -18,6 +18,9 @@
     "sourcemap": true,
     "clean": true,
     "dts": true
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@lacunahub"
   },
   "repository": {
     "type": "git",
