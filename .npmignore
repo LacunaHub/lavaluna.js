@@ -1,6 +1,5 @@
 .github/
 .vscode/
-dist/
 docs/
 .gitignore
 .prettierrc
