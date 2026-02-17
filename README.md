@@ -2,28 +2,69 @@
 
 **lavaluna.js** is Lavalink client for Node.js, inspired by [erela.js](https://github.com/MenuDocs/erela.js).
 
-# Requirements
+# Links
 
--   Lavalink v4 (see [releases](https://github.com/lavalink-devs/Lavalink/releases))
--   Java 17 LTS or newer - [Azul](https://www.azul.com/downloads/zulu-community/?architecture=x86-64-bit&package=jdk), [Adopt](https://adoptopenjdk.net/) or [sdkman](https://sdkman.io/install)
-
-# Documentation
-
--   Link
+- [API Docs](https://lacunahub.github.io/lavaluna.js)
 
 # Installation
 
+## Using NPM Registry
+
 ```bash
-npm install lavaluna.js
+npm install @lacunahub/lavaluna.js
 ```
 
-_Developed and tested on Node.js v18_
+## Using GitHub Packages Registry
+
+1. Create a [GitHub Personal Access Token](https://github.com/settings/tokens/new) with `read:packages` scope
+
+2. Add to your shell profile (`.bashrc`, `.zshrc`, or `.profile`):
+
+```bash
+export GITHUB_TOKEN=your_token_here
+```
+
+3. In your project directory, create `.npmrc`:
+
+```
+@lacunahub:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+4. Install:
+
+```bash
+npm install @lacunahub/lavaluna.js
+```
+
+### Alternative: npm login
+
+Authenticate once with GitHub Packages:
+
+```bash
+npm login --registry=https://npm.pkg.github.com --scope=@lacunahub
+# Username: your-github-username
+# Password: your-personal-access-token (with read:packages scope)
+# Email: your-email
+```
+
+Then install normally:
+
+```bash
+npm install @lacunahub/lavaluna.js
+```
+
+See [Working with the npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) for more information.
 
 # Usage
 
-```js
-const { Client, GatewayIntentBits } = require('discord.js')
-const { LavalunaManager } = require('lavaluna.js')
+## Prerequisites
+
+- Lavalink v4 (see [releases](https://github.com/lavalink-devs/Lavalink/releases))
+
+```ts
+import { Client, GatewayIntentBits } from 'discord.js'
+import { Lavaluna } from '@lacunahub/lavaluna.js'
 
 // Initiate discord.js client
 const client = new Client({
@@ -31,20 +72,19 @@ const client = new Client({
 })
 
 // Assign manager to the client
-client.lava = new LavalunaManager({
+client.lava = new Lavaluna({
     // Lavalink nodes
     nodes: [
         {
-            hostname: 'lavalink-v4.teramont.net',
+            hostname: 'lavalink.example.com',
             port: 443,
-            password: 'eHKuFcz67k4lBS64',
+            password: 'strong_pass',
             secure: true
         }
     ],
     // Method to send voice data to Discord
     send: (id, payload) => {
         const guild = client.guilds.cache.get(id)
-        // for eris you need JSON.stringify() the payload
         guild && guild.shard.send(payload)
     }
 })
@@ -140,4 +180,4 @@ client.login('your bot token here')
 
 # License
 
-This project is licensed under the [MIT License](https://github.com/LacunaHub/lavaluna.js/blob/master/LICENSE)
+This project is licensed under the [MIT License](./LICENSE).

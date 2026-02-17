@@ -2,7 +2,7 @@ import { Pool } from 'undici'
 import { OPEN } from 'ws'
 import { REST } from '../api/REST'
 import { EventOP, Events, OP, Stats, WebSocket } from '../api/WebSocket'
-import { LavalunaManager } from '../managers/LavalunaManager'
+import { Lavaluna } from '../managers/Lavaluna'
 import { PlayerManager } from '../managers/PlayerManager'
 
 function validateOptions(options: NodeOptions) {
@@ -108,7 +108,10 @@ export class Node {
     private reconnectTimeout: NodeJS.Timeout | null = null
     private reconnectAttempts = 0
 
-    constructor(public manager: LavalunaManager, public readonly options: NodeOptions) {
+    constructor(
+        public manager: Lavaluna,
+        public readonly options: NodeOptions
+    ) {
         validateOptions(options)
 
         this.options.name = this.options.name || this.options.hostname
