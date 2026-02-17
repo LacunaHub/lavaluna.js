@@ -4,5 +4,13 @@
     "singleQuote": true,
     "semi": false,
     "arrowParens": "avoid",
-    "printWidth": 120
+    "printWidth": 120,
+    "overrides": [
+        {
+            "files": ["*.json", "*.yml"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
