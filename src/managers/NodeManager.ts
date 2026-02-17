@@ -4,7 +4,7 @@ import { Node, NodeOptions } from '../structures/Node'
 import { Player, PlayerOptions } from '../structures/Player'
 import { QueuedTrack } from '../structures/Queue'
 import { DataManager } from './DataManager'
-import { LavalunaManager } from './LavalunaManager'
+import { Lavaluna } from './Lavaluna'
 
 export class NodeManager extends DataManager<string, Node> {
     /**
@@ -25,7 +25,7 @@ export class NodeManager extends DataManager<string, Node> {
             })
     }
 
-    constructor(public manager: LavalunaManager) {
+    constructor(public manager: Lavaluna) {
         super()
     }
 

@@ -3,49 +3,31 @@ import { APIPlayer, Track } from '../api/REST'
 import { Exception, WebSocketClosedEvent } from '../api/WebSocket'
 import { Node, NodeOptions } from '../structures/Node'
 import { Player } from '../structures/Player'
-import { NodeManager, SearchOptions, SearchPlatform, SearchQuery, SearchResult } from './NodeManager'
+import { NodeManager, SearchPlatform } from './NodeManager'
 
-function validateOptions(options: LavalunaManagerOptions) {
-    if (!options) {
-        throw new TypeError('You must specify the options for the Manager.')
-    }
-
-    if (typeof options.nodes === 'undefined' && !Array.isArray(options.nodes)) {
-        throw new TypeError('Manager nodes must be an array.')
-    }
-
-    if (typeof options.clientId !== 'string' || !options.clientId.length) {
-        throw new TypeError('Manager clientId must be specified and be a non-empty string.')
-    }
-
-    if (typeof options.clientName !== 'undefined' && typeof options.clientName !== 'string') {
-        throw new TypeError('Manager clientName must be a string.')
-    }
-
-    if (typeof options.defaultSearchPlatform !== 'undefined' && typeof options.defaultSearchPlatform !== 'string') {
-        throw new TypeError('Manager defaultSearchPlatform must be a string.')
-    }
-
-    if (typeof options.send !== 'function') {
-        throw new TypeError('Manager option "send" must be specified and be a function.')
-    }
-}
-
-export class LavalunaManager extends EventEmitter {
+export class Lavaluna extends EventEmitter<LavalunaEvents> {
     /**
      * The Lavalink nodes.
      */
-    public nodes: NodeManager
+    public nodes: NodeManager = new NodeManager(this)
 
-    private initialized = false
+    private initialized: boolean = false
 
-    constructor(public readonly options: LavalunaManagerOptions) {
-        validateOptions(options)
+    constructor(public readonly options: LavalunaOptions) {
+        if (!options) throw new TypeError('[Lavaluna] "options" is required.')
+        if (typeof options.nodes === 'undefined' && !Array.isArray(options.nodes))
+            throw new TypeError('[Lavaluna] "options.nodes" must be an array.')
+        if (typeof options.clientName !== 'undefined' && typeof options.clientName !== 'string')
+            throw new TypeError('[Lavaluna] "options.clientId" must be a string.')
+        if (typeof options.clientName !== 'undefined' && typeof options.clientName !== 'string')
+            throw new TypeError('[Lavaluna] "options.clientName" must be a string.')
+        if (typeof options.defaultSearchPlatform !== 'undefined' && typeof options.defaultSearchPlatform !== 'string')
+            throw new TypeError('[Lavaluna] "options.defaultSearchPlatform" must be a string.')
+        if (typeof options.send !== 'function') throw new TypeError('[Lavaluna] "options.send" must be a function.')
+
         super()
 
-        this.nodes = new NodeManager(this)
         this.options.clientName = this.options.clientName ?? 'lavaluna.js'
-
         for (const nodeOptions of this.options.nodes) {
             this.nodes.create(nodeOptions)
         }
@@ -60,9 +42,8 @@ export class LavalunaManager extends EventEmitter {
         if (this.initialized) return
 
         if (typeof clientId !== 'undefined') this.options.clientId = clientId
-        if (typeof this.options.clientId !== 'string')
-            throw new TypeError('[LavalunaManager#initialize] clientId is not a string')
-        if (!this.options.clientId) throw new TypeError('[LavalunaManager#initialize] clientId is required')
+        if (typeof this.options.clientId !== 'string' || !this.options.clientId)
+            throw new TypeError('[Lavaluna#initialize] "clientId" must be a non-empty string.')
 
         for (const node of this.nodes.cache.values()) {
             try {
@@ -73,16 +54,13 @@ export class LavalunaManager extends EventEmitter {
         }
 
         this.initialized = true
-
         return this
     }
 
     /**
      * Shortcut for {@link NodeManager.search}.
      */
-    public async search(query: SearchQuery, options?: SearchOptions): Promise<SearchResult> {
-        return this.nodes.search(query, options)
-    }
+    public search = this.nodes.search
 
     /**
      * Sends voice data to the Lavalink server.
@@ -139,28 +117,27 @@ export class LavalunaManager extends EventEmitter {
     }
 }
 
-export interface LavalunaManager {
-    on<Event extends keyof LavalunaManagerEvents>(
-        event: Event,
-        listener: (...args: LavalunaManagerEvents[Event]) => void
-    ): this
-
-    once<Event extends keyof LavalunaManagerEvents>(
-        event: Event,
-        listener: (...args: LavalunaManagerEvents[Event]) => void
-    ): this
-
-    emit<Event extends keyof LavalunaManagerEvents>(event: Event, ...args: LavalunaManagerEvents[Event]): boolean
-
-    off<Event extends keyof LavalunaManagerEvents>(
-        event: Event,
-        listener: (...args: LavalunaManagerEvents[Event]) => void
-    ): this
-
-    removeAllListeners<Event extends keyof LavalunaManagerEvents>(event?: Event): this
+export interface LavalunaEvents {
+    nodeCreate: [node: Node]
+    nodeDestroy: [node: Node]
+    nodeConnect: [node: Node]
+    nodeReconnect: [node: Node]
+    nodeDisconnect: [node: Node, event: { code?: number; reason?: string }]
+    nodeError: [node: Node, error: Error]
+    nodeRaw: [node: Node, payload: unknown]
+    playerCreate: [player: Player]
+    playerDestroy: [player: Player]
+    playerMove: [player: Player, oldChannelId: string, newChannelId: string]
+    playerDisconnect: [player: Player, oldChannelId: string]
+    playerQueueEnd: [player: Player, track: Track]
+    playerTrackStart: [player: Player, track: Track]
+    playerTrackEnd: [player: Player, track: Track]
+    playerTrackStuck: [player: Player, track: Track, thresholdMs: number]
+    playerTrackError: [player: Player, track: Track, exception: Exception]
+    webSocketClosed: [player: Player, event: Partial<WebSocketClosedEvent>]
 }
 
-export interface LavalunaManagerOptions {
+export interface LavalunaOptions {
     /**
      * The array of nodes to connect to.
      */
@@ -182,10 +159,10 @@ export interface LavalunaManagerOptions {
     /**
      * Function to send data to the shard.
      */
-    send(id: string, payload: LavalunaManagerOptionsSendPayload): void
+    send(id: string, payload: LavalunaOptionsSendPayload): void
 }
 
-export interface LavalunaManagerOptionsSendPayload {
+export interface LavalunaOptionsSendPayload {
     /** The OP code */
     op: number
     d: {
@@ -194,26 +171,6 @@ export interface LavalunaManagerOptionsSendPayload {
         self_mute: boolean
         self_deaf: boolean
     }
-}
-
-export interface LavalunaManagerEvents {
-    nodeCreate: [node: Node]
-    nodeDestroy: [node: Node]
-    nodeConnect: [node: Node]
-    nodeReconnect: [node: Node]
-    nodeDisconnect: [node: Node, event: { code?: number; reason?: string }]
-    nodeError: [node: Node, error: Error]
-    nodeRaw: [node: Node, payload: unknown]
-    playerCreate: [player: Player]
-    playerDestroy: [player: Player]
-    playerMove: [player: Player, oldChannelId: string, newChannelId: string]
-    playerDisconnect: [player: Player, oldChannelId: string]
-    playerQueueEnd: [player: Player, track: Track]
-    playerTrackStart: [player: Player, track: Track]
-    playerTrackEnd: [player: Player, track: Track]
-    playerTrackStuck: [player: Player, track: Track, thresholdMs: number]
-    playerTrackError: [player: Player, track: Track, exception: Exception]
-    webSocketClosed: [player: Player, event: Partial<WebSocketClosedEvent>]
 }
 
 export interface DiscordVoicePacket {
