@@ -19,9 +19,6 @@
     "clean": true,
     "dts": true
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@lacunahub"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LacunaHub/lavaluna.js.git"
