@@ -478,6 +478,11 @@ export interface VoiceState {
      * The Discord voice session id to authenticate with.
      */
     sessionId: string
+
+    /**
+     * The Discord voice channel id the bot is connecting to.
+     */
+    channelId: string
 }
 
 export interface Filters {

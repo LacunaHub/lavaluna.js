@@ -5,9 +5,11 @@
     "semi": false,
     "arrowParens": "avoid",
     "printWidth": 120,
+    "endOfLine": "lf",
+    "useTabs": false,
     "overrides": [
         {
-            "files": ["*.json", "*.yml"],
+            "files": ["*.json", "*.yml", "*.yaml"],
             "options": {
                 "tabWidth": 2
             }
