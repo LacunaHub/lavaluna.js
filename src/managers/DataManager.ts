@@ -25,7 +25,7 @@ export class DataManager<K, V> {
     }
 
     /** Finds a value in the cache matching the given predicate. */
-    public find = this.cache.find
+    public find = this.cache.find.bind(this.cache) as typeof this.cache.find
     /** Deletes an entry from the cache by key. */
-    public delete = this.cache.delete
+    public delete = this.cache.delete.bind(this.cache) as typeof this.cache.delete
 }

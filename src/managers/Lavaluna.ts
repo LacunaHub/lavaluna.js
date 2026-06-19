@@ -1,3 +1,9 @@
+import {
+    GatewayDispatchEvents,
+    GatewayVoiceServerUpdateDispatch,
+    GatewayVoiceStateUpdate,
+    GatewayVoiceStateUpdateDispatch
+} from 'discord-api-types/gateway/v10'
 import EventEmitter from 'events'
 import { APIPlayer, Track } from '../api/REST'
 import { Exception, WebSocketClosedEvent } from '../api/WebSocket'
@@ -60,7 +66,7 @@ export class Lavaluna extends EventEmitter<LavalunaEvents> {
     /**
      * Shortcut for {@link NodeManager.search}.
      */
-    public search = this.nodes.search
+    public search = this.nodes.search.bind(this.nodes) as typeof this.nodes.search
 
     /**
      * Sends voice data to the Lavalink server.
@@ -68,10 +74,13 @@ export class Lavaluna extends EventEmitter<LavalunaEvents> {
      * @param data - The data to update voice state.
      * @returns The updated player.
      */
-    public async updateVoiceState(data: DiscordVoicePacket): Promise<APIPlayer> {
-        if ('t' in data && !['VOICE_STATE_UPDATE', 'VOICE_SERVER_UPDATE'].includes(data.t)) return null
+    public async updateVoiceState(
+        data: GatewayVoiceServerUpdateDispatch | GatewayVoiceStateUpdateDispatch
+    ): Promise<APIPlayer> {
+        if (data.t !== GatewayDispatchEvents.VoiceServerUpdate && data.t !== GatewayDispatchEvents.VoiceStateUpdate)
+            return null
 
-        const update: DiscordVoiceServer | DiscordVoiceState = data.d
+        const update = data.d
         if (!update || (!('token' in update) && !('session_id' in update))) return null
 
         const player = this.nodes.getPlayer(update.guild_id)
@@ -94,6 +103,7 @@ export class Lavaluna extends EventEmitter<LavalunaEvents> {
                 }
 
                 player.voiceState.sessionId = update.session_id
+                player.voiceState.channelId = update.channel_id
                 player.voiceChannelId = update.channel_id
             } else {
                 // Player got disconnected.
@@ -110,7 +120,8 @@ export class Lavaluna extends EventEmitter<LavalunaEvents> {
                 voice: {
                     token: player.voiceState.token,
                     endpoint: player.voiceState.endpoint,
-                    sessionId: player.voiceState.sessionId
+                    sessionId: player.voiceState.sessionId,
+                    channelId: player.voiceState.channelId
                 }
             })
         }
@@ -159,67 +170,5 @@ export interface LavalunaOptions {
     /**
      * Function to send data to the shard.
      */
-    send(id: string, payload: LavalunaOptionsSendPayload): void
-}
-
-export interface LavalunaOptionsSendPayload {
-    /** The OP code */
-    op: number
-    d: {
-        guild_id: string
-        channel_id: string | null
-        self_mute: boolean
-        self_deaf: boolean
-    }
-}
-
-export interface DiscordVoicePacket {
-    /**
-     * The type of packet.
-     */
-    t?: 'VOICE_SERVER_UPDATE' | 'VOICE_STATE_UPDATE'
-
-    /**
-     * The data of the packet.
-     */
-    d: DiscordVoiceState | DiscordVoiceServer
-}
-
-export interface DiscordVoiceServer {
-    /**
-     * The token to use.
-     */
-    token: string
-
-    /**
-     * The guild ID.
-     */
-    guild_id: string
-
-    /**
-     * The endpoint to use.
-     */
-    endpoint: string
-}
-
-export interface DiscordVoiceState {
-    /**
-     * The guild ID.
-     */
-    guild_id: string
-
-    /**
-     * The user ID.
-     */
-    user_id: string
-
-    /**
-     * The session ID.
-     */
-    session_id: string
-
-    /**
-     * The channel ID.
-     */
-    channel_id: string
+    send(id: string, payload: GatewayVoiceStateUpdate): void
 }

@@ -1,3 +1,4 @@
+import { GatewayOpcodes } from 'discord-api-types/gateway/v10'
 import { APIPlayer, Filters, VoiceState } from '../api/REST'
 import { isValidTrack } from '../utils/Utils'
 import { Node } from './Node'
@@ -80,7 +81,10 @@ export class Player {
 
     private readonly data: Record<string, any> = {}
 
-    constructor(public node: Node, public readonly options: PlayerOptions) {
+    constructor(
+        public node: Node,
+        public readonly options: PlayerOptions
+    ) {
         this.guildId = options.guildId
         this.voiceChannelId = options.voiceChannelId
         this.textChannelId = options.textChannelId
@@ -101,7 +105,7 @@ export class Player {
         this.state = 'CONNECTING'
 
         this.node.manager.options.send(this.guildId, {
-            op: 4,
+            op: GatewayOpcodes.VoiceStateUpdate,
             d: {
                 guild_id: this.guildId,
                 channel_id: this.voiceChannelId,
