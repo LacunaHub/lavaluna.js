@@ -1,6 +1,5 @@
 {
   "name": "@lacunahub/lavaluna.js",
-  "version": "1.1.0",
   "description": "Lavalink client for Node.js.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,7 +42,7 @@
   },
   "dependencies": {
     "@danliyev/wishmap": "^1.0.4",
-    "undici": "^6.23.0",
-    "ws": "^8.19.0"
+    "undici": "^6.27.0",
+    "ws": "^8.21.0"
   }
 }
