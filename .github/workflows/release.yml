@@ -1,4 +1,4 @@
-name: Publish package
+name: Release
 
 on:
   push:
@@ -20,6 +20,7 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
           scope: '@lacunahub'
+      - run: npm version ${{ github.ref_name }} --no-git-tag-version
       - run: npm ci
       - run: npm run build
       - run: npm publish
@@ -35,6 +36,7 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org/
           scope: '@lacunahub'
+      - run: npm version ${{ github.ref_name }} --no-git-tag-version
       - run: npm ci
       - run: npm run build
       - name: Publish
